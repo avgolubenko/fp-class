@@ -1,20 +1,27 @@
 import System.Environment
+import Data.Char
 
 {-
   Написать функцию, которая по заданному списку строк возвращает сумму длин всех строк.
 -}
 
 totalLength :: [String] -> Int
-totalLength = undefined
-
+totalLength = foldl(\c x -> length x + c) 0
 {-
   Написать функцию, которая по заданному символу и целому числу n строит список строк,
   содержащих 1, 2, ..., n повторений символа. Функция должна возвращать Nothing, если n=0.
 -}
+--дополнительные функции для построения списка строк 
+fun1 :: Char -> Int -> [String]
+fun1 _ 0 = []
+fun1 c n =(replicate n (c) ) : (fun1  (c) (n - 1))
+
+dop :: Char -> Int -> [String]
+dop c n = reverse $fun1 (c) n
 
 build1 :: Char -> Int -> Maybe [String]
-build1 = undefined
-
+build1 _ 0 = Nothing
+build1 c  n = Just (dop (c) n)
 {-
   Написать функцию, аналогичную по возможностям функции build1, но возвращающую при этом
   значение Either String [String], в котором значение слева должно свидетельствовать об
@@ -25,8 +32,13 @@ build1 = undefined
 -}
 
 build2 :: Char -> Int -> Either String [String]
-build2 = undefined
-
+build2 c n 
+	| n == 0 = Left "n=0"
+	| n > 100 = Left "n>100"
+	| c == 'x' = Left "Choose other symbol"
+	| otherwise = Right  (dop c n)
+	
+	
 {-
   Параметрами командной строки являются имя файла, символ, целое число.
   1) Пользуясь функцией totalLength и возможностями IO, как функтора, подсчитать и
