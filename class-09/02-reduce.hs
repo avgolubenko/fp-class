@@ -1,4 +1,5 @@
 import System.Environment
+import System.Random
 
 {-
   Напишите функцию reduce, принимающую один целочисленный аргумент a и возвращающую 0,
@@ -7,7 +8,10 @@ import System.Environment
 -}
 
 reduce :: Integral a => a -> a
-reduce = undefined
+reduce n
+		| n `mod` 3 == 0 = 0
+		| n `mod` 3 /= 0 && n `mod` 2 ==1 = (n*n)
+		| otherwise = (n*n*n)
 
 {-
   Напишите функцию, применяющую функцию reduce заданное количество раз к значению в контексте,
@@ -15,25 +19,39 @@ reduce = undefined
 -}
 
 reduceNF :: (Functor f, Integral a) => Int -> f a -> f a
-reduceNF = undefined
-
+reduceNF count f = foldl (\x _ -> fmap reduce x) f [1..count]
 {-
   Реализуйте следующие функции-преобразователи произвольным, но, желательно, осмысленным и
   нетривиальным способом.
 -}
 
+
 toList :: Integral a => [(a, a)]  -> [a]
-toList = undefined
+toList   = fmap (\(x,y)-> (reduce (x+y)))
+
+--сумма всех хi: [(x1,_),(x2,_),...,(xn,_)]
+dop :: Integral a => [(a, a)]  ->  a
+dop [] = 0
+dop((x,y):tail) =  x +dop(tail)
 
 toMaybe :: Integral a => [(a, a)]  -> Maybe a
-toMaybe = undefined
+toMaybe [] = Nothing
+toMaybe list = Just (dop list)
 
 toEither :: Integral a => [(a, a)]  -> Either String a
-toEither = undefined
+toEither  list 
+		|length list == 0 = Left "List is empty"
+		|x+y== 666 = Left "First pair is 666"
+		|otherwise = Right $dop  list
+		where (x,y) = head list
+
 
 -- воспользуйтесь в этой функции случайными числами
-toIO :: Integral a => [(a, a)]  -> IO a
-toIO = undefined
+--toIO :: Integral a => [(a, a)]  -> IO a
+--случайное значение в диапазоне первой пары
+toIO list = randomRIO(x,y)
+		where (x,y) = head list
+		
 
 {-
   В параметрах командной строки задано имя текстового файла, в каждой строке
@@ -50,12 +68,12 @@ parseArgs = undefined
 readData :: FilePath -> IO [(Int, Int)]
 readData = undefined
 
-main = do
+{-main = do
   (fname, n) <- parseArgs `fmap` getArgs
   ps <- readData fname
   undefined
   print $ reduceNF n (toEither ps)
-  reduceNF n (toIO ps) >>= print
+  reduceNF n (toIO ps) >>= print-}
 
 {-
   Подготовьте несколько тестовых файлов, демонстрирующих особенности различных контекстов.
